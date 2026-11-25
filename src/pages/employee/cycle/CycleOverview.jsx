@@ -7,7 +7,8 @@ import {
   Lock,
   ArrowRight,
   PlusCircle,
-  History
+  History,
+  Bot
 } from 'lucide-react'
 import PageContainer from '../../../components/layout/PageContainer'
 import Badge from '../../../components/common/Badge'
@@ -16,6 +17,7 @@ import CycleStatusCard from '../../../components/cycle/CycleStatusCard'
 import CycleCalendarPreview from '../../../components/cycle/CycleCalendarPreview'
 import CyclePrivacyNotice from '../../../components/cycle/CyclePrivacyNotice'
 import PeriodModal from '../../../components/cycle/PeriodModal'
+import CycleWellnessAssistant from '../../../components/cycle/CycleWellnessAssistant'
 import { useCycle } from '../../../context/useCycle'
 
 export default function CycleOverview() {
@@ -189,7 +191,35 @@ export default function CycleOverview() {
           </div>
         </div>
 
-        {/* 4. Privacy & Consent Notice */}
+        {/* 4. Integrated Cycle & Wellness AI Assistant */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-purple-100 text-purple-700">
+                <Bot className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900">
+                  Cycle & Wellness AI Assistant
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Instant, context-aware answers grounded in your confidential records
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/employee/cycle/assistant"
+              className="text-xs font-semibold text-purple-700 hover:text-purple-800 hover:underline inline-flex items-center gap-1"
+            >
+              <span>Full Assistant View</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <CycleWellnessAssistant compact={true} />
+        </div>
+
+        {/* 5. Privacy & Consent Notice */}
         <CyclePrivacyNotice />
       </div>
 

@@ -38,6 +38,7 @@ import WellnessCheckIn from '../pages/employee/cycle/WellnessCheckIn'
 import CycleHistory from '../pages/employee/cycle/CycleHistory'
 import CycleInsights from '../pages/employee/cycle/CycleInsights'
 import CycleSettings from '../pages/employee/cycle/CycleSettings'
+import CycleAssistantPage from '../pages/employee/cycle/CycleAssistantPage'
 
 export default function AppRoutes() {
   return (
@@ -55,6 +56,7 @@ export default function AppRoutes() {
           <Route index element={<Navigate to="/employee/dashboard" replace />} />
           <Route path="dashboard" element={<EmployeeDashboard />} />
           <Route path="cycle" element={<CycleOverview />} />
+          <Route path="cycle/assistant" element={<CycleAssistantPage />} />
           <Route path="cycle/calendar" element={<CycleCalendar />} />
           <Route path="cycle/check-in" element={<WellnessCheckIn />} />
           <Route path="cycle/history" element={<CycleHistory />} />

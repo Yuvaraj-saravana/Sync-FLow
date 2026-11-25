@@ -1,11 +1,12 @@
-﻿import { NavLink } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard,
   Calendar,
   CheckCircle2,
   History,
   Sparkles,
-  Settings
+  Settings,
+  Bot
 } from 'lucide-react'
 
 export default function CycleNavigation() {
@@ -15,6 +16,11 @@ export default function CycleNavigation() {
       path: '/employee/cycle',
       icon: LayoutDashboard,
       end: true,
+    },
+    {
+      name: 'AI Assistant',
+      path: '/employee/cycle/assistant',
+      icon: Bot,
     },
     {
       name: 'Calendar',
