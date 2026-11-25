@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Sparkles,
   CheckCircle2,
   Calendar,
-  LineChart,
   Lock,
-  ArrowRight
+  ArrowRight,
+  PlusCircle,
+  History
 } from 'lucide-react'
 import PageContainer from '../../../components/layout/PageContainer'
 import Badge from '../../../components/common/Badge'
@@ -13,10 +15,16 @@ import CycleNavigation from '../../../components/cycle/CycleNavigation'
 import CycleStatusCard from '../../../components/cycle/CycleStatusCard'
 import CycleCalendarPreview from '../../../components/cycle/CycleCalendarPreview'
 import CyclePrivacyNotice from '../../../components/cycle/CyclePrivacyNotice'
+import PeriodModal from '../../../components/cycle/PeriodModal'
 import { useCycle } from '../../../context/useCycle'
 
 export default function CycleOverview() {
-  const { profile, configureProfile, checkIns } = useCycle()
+  const { profile, cycleSummary, addPeriod, periods, checkIns } = useCycle()
+  const [isPeriodModalOpen, setIsPeriodModalOpen] = useState(false)
+
+  const handlePeriodSubmit = (periodData) => {
+    return addPeriod(periodData)
+  }
 
   return (
     <PageContainer
@@ -30,13 +38,14 @@ export default function CycleOverview() {
       }
       actions={
         <div className="flex items-center gap-2">
-          <Link
-            to="/employee/cycle/check-in"
+          <button
+            type="button"
+            onClick={() => setIsPeriodModalOpen(true)}
             className="text-xs font-semibold text-white bg-purple-700 hover:bg-purple-800 px-3.5 py-1.5 rounded-xl shadow-xs transition-colors inline-flex items-center gap-1.5"
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span>Daily Check-in</span>
-          </Link>
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>Record Period</span>
+          </button>
         </div>
       }
     >
@@ -44,14 +53,31 @@ export default function CycleOverview() {
       <CycleNavigation />
 
       <div className="space-y-6">
-        {/* 1. Cycle Status Card (Handles Unconfigured/Onboarding and Active States) */}
+        {/* 1. Cycle Status Card */}
         <CycleStatusCard
-          profile={profile}
-          onConfigure={configureProfile}
+          cycleSummary={cycleSummary}
+          onOpenPeriodModal={() => setIsPeriodModalOpen(true)}
         />
 
         {/* 2. Quick Access Tool Bar */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <button
+            type="button"
+            onClick={() => setIsPeriodModalOpen(true)}
+            className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-xs transition-all flex items-center justify-between text-left group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-50 text-purple-700 group-hover:scale-105 transition-transform">
+                <PlusCircle className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-800">Record Period</h4>
+                <p className="text-xs text-slate-500">Log start & flow intensity</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
+          </button>
+
           <Link
             to="/employee/cycle/check-in"
             className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-xs transition-all flex items-center justify-between group"
@@ -69,6 +95,22 @@ export default function CycleOverview() {
           </Link>
 
           <Link
+            to="/employee/cycle/history"
+            className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-xs transition-all flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-slate-50 text-slate-700 group-hover:scale-105 transition-transform">
+                <History className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-800">Period History</h4>
+                <p className="text-xs text-slate-500">{periods.length} recorded period{periods.length === 1 ? '' : 's'}</p>
+              </div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 transition-colors" />
+          </Link>
+
+          <Link
             to="/employee/cycle/calendar"
             className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-xs transition-all flex items-center justify-between group"
           >
@@ -78,26 +120,10 @@ export default function CycleOverview() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-slate-800">Cycle Calendar</h4>
-                <p className="text-xs text-slate-500">View estimated phases</p>
+                <p className="text-xs text-slate-500">View monthly schedule</p>
               </div>
             </div>
             <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 transition-colors" />
-          </Link>
-
-          <Link
-            to="/employee/cycle/insights"
-            className="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-purple-300 hover:shadow-xs transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-rose-50 text-rose-600 group-hover:scale-105 transition-transform">
-                <LineChart className="w-5 h-5" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold text-slate-800">Personal Insights</h4>
-                <p className="text-xs text-slate-500">Review wellness trends</p>
-              </div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors" />
           </Link>
         </div>
 
@@ -166,6 +192,14 @@ export default function CycleOverview() {
         {/* 4. Privacy & Consent Notice */}
         <CyclePrivacyNotice />
       </div>
+
+      {/* Record Period Modal */}
+      <PeriodModal
+        isOpen={isPeriodModalOpen}
+        onClose={() => setIsPeriodModalOpen(false)}
+        onSubmit={handlePeriodSubmit}
+        title="Record Period"
+      />
     </PageContainer>
   )
 }
