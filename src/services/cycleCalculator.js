@@ -287,3 +287,124 @@ export function calculateCycleSummary(profile = {}, periods = [], asOfDate = new
     hasSufficientData: Boolean(latestPeriodStart && effectiveCycleLength && !isIrregular),
   }
 }
+
+/**
+ * Analyzes a specific calendar date (YYYY-MM-DD) against profile, recorded periods,
+ * and optional check-ins.
+ */
+export function getDateCycleStatus(targetDateStr, profile = {}, periods = [], checkIns = []) {
+  if (!targetDateStr) return null
+
+  const targetDate = parseDateString(targetDateStr)
+  if (!targetDate) return null
+
+  const summary = calculateCycleSummary(profile, periods, targetDate)
+  const {
+    isConfigured,
+    latestPeriodStart,
+    effectiveCycleLength,
+    periodDuration,
+    regularity,
+    isIrregular,
+    hasSufficientData,
+  } = summary
+
+  // 1. Check if date falls within any recorded period
+  let recordedPeriod = null
+  if (periods && periods.length > 0) {
+    const todayStr = formatDateString(new Date())
+    for (const p of periods) {
+      const pStart = p.startDate
+      // If ongoing, extends up to today (or start if today is earlier)
+      const pEnd = p.endDate || (todayStr >= pStart ? todayStr : pStart)
+      if (targetDateStr >= pStart && targetDateStr <= pEnd) {
+        recordedPeriod = {
+          ...p,
+          isStart: targetDateStr === pStart,
+          isEnd: targetDateStr === p.endDate,
+          isOngoing: !p.endDate,
+        }
+        break
+      }
+    }
+  }
+
+  // 2. Check upcoming estimated periods (only if sufficient data, regular, and targetDate >= latestPeriodStart)
+  let isEstimatedPeriod = false
+  let estimatedPeriodWindow = null
+
+  if (hasSufficientData && latestPeriodStart && effectiveCycleLength && !isIrregular) {
+    const latestStart = parseDateString(latestPeriodStart)
+    const duration = periodDuration || 5
+    const cycleLen = effectiveCycleLength
+
+    // Project upcoming periods up to 12 cycles ahead
+    for (let k = 1; k <= 12; k++) {
+      const projStart = new Date(latestStart.getFullYear(), latestStart.getMonth(), latestStart.getDate() + k * cycleLen)
+      const projEnd = new Date(projStart.getFullYear(), projStart.getMonth(), projStart.getDate() + duration - 1)
+      const projStartStr = formatDateString(projStart)
+      const projEndStr = formatDateString(projEnd)
+
+      if (targetDateStr >= projStartStr && targetDateStr <= projEndStr) {
+        isEstimatedPeriod = true
+        estimatedPeriodWindow = {
+          startDate: projStartStr,
+          endDate: projEndStr,
+          cycleIndex: k,
+        }
+        break
+      }
+    }
+  }
+
+  // 3. Compute Cycle Day & Phase for this specific target date
+  let cycleDay = null
+  let phaseInfo = null
+
+  if (latestPeriodStart) {
+    const latestStart = parseDateString(latestPeriodStart)
+    const diffTime = targetDate.getTime() - latestStart.getTime()
+    const diffDays = Math.floor(diffTime / MS_PER_DAY)
+
+    if (diffDays >= 0) {
+      if (effectiveCycleLength && !isIrregular) {
+        cycleDay = (diffDays % effectiveCycleLength) + 1
+        phaseInfo = estimateCyclePhase(cycleDay, effectiveCycleLength, periodDuration, regularity)
+      } else {
+        // If length unknown or irregular, cycle day counts up linearly from start
+        cycleDay = diffDays + 1
+        phaseInfo = estimateCyclePhase(cycleDay, effectiveCycleLength, periodDuration, regularity)
+      }
+    }
+  }
+
+  if (!phaseInfo) {
+    phaseInfo = {
+      phaseKey: null,
+      name: isConfigured ? 'Unestimated' : 'Unrecorded',
+      description: isConfigured
+        ? 'Date precedes your earliest recorded baseline date.'
+        : 'Configure your cycle baseline or record periods to view phase estimates.',
+      badge: 'slate',
+      isEstimate: false,
+      isPaused: true,
+      reason: isConfigured ? 'date_precedes_baseline' : 'no_start_date',
+    }
+  }
+
+  // 4. Check wellness check-in for this date
+  const checkIn = checkIns?.find((c) => c.date === targetDateStr) || null
+
+  return {
+    dateStr: targetDateStr,
+    isRecordedPeriod: Boolean(recordedPeriod),
+    recordedPeriod,
+    isEstimatedPeriod,
+    estimatedPeriodWindow,
+    cycleDay,
+    phaseInfo,
+    checkIn,
+    hasCheckIn: Boolean(checkIn),
+    isConfigured,
+  }
+}

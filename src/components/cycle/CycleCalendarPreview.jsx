@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, ArrowRight, Info } from 'lucide-react'
 
 export default function CycleCalendarPreview({ profile }) {
-  const isConfigured = Boolean(profile?.isConfigured && profile?.lastPeriodStart)
+  const isConfigured = Boolean(profile?.isConfigured || profile?.lastPeriodStart)
   const [today] = useState(() => new Date())
   const currentMonthName = today.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
 

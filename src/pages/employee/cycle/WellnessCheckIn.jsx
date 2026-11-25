@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   CheckCircle2,
   Sparkles,
@@ -14,10 +14,14 @@ import PageContainer from '../../../components/layout/PageContainer'
 import Badge from '../../../components/common/Badge'
 import CycleNavigation from '../../../components/cycle/CycleNavigation'
 import { useCycle } from '../../../context/useCycle'
+import { formatDateString } from '../../../services/cycleCalculator.js'
 
 export default function WellnessCheckIn() {
   const { recordCheckIn } = useCycle()
-  const [date, setDate] = useState(() => new Date().toISOString().split('T')[0])
+  const [searchParams] = useSearchParams()
+  const queryDate = searchParams.get('date')
+
+  const [date, setDate] = useState(() => queryDate || formatDateString(new Date()))
   const [energy, setEnergy] = useState('Moderate Energy')
   const [comfort, setComfort] = useState('Comfortable')
   const [mood, setMood] = useState('Focused & Steady')
