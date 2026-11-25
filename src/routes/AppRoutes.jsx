@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import {
-  Apple,
   Activity,
   Bot,
   CheckSquare,
@@ -33,49 +32,52 @@ import EmployeeDashboard from '../pages/employee/EmployeeDashboard'
 // Cycle & Wellness AI Module Pages
 import { CycleProvider } from '../context/CycleContext'
 import CycleOverview from '../pages/employee/cycle/CycleOverview'
+import CycleAssistantPage from '../pages/employee/cycle/CycleAssistantPage'
 import CycleCalendar from '../pages/employee/cycle/CycleCalendar'
 import WellnessCheckIn from '../pages/employee/cycle/WellnessCheckIn'
 import CycleHistory from '../pages/employee/cycle/CycleHistory'
 import CycleInsights from '../pages/employee/cycle/CycleInsights'
 import CycleSettings from '../pages/employee/cycle/CycleSettings'
-import CycleAssistantPage from '../pages/employee/cycle/CycleAssistantPage'
+// Nutrition AI Module Pages
+import { NutritionProvider } from '../context/NutritionContext'
+import NutritionOverview from '../pages/employee/nutrition/NutritionOverview'
+import NutritionProfile from '../pages/employee/nutrition/NutritionProfile'
+import {
+  MealPlannerPlaceholder,
+  FoodScannerPlaceholder,
+  NutritionHistoryPlaceholder,
+} from '../pages/employee/nutrition/NutritionPlaceholderPages'
 
 export default function AppRoutes() {
   return (
     <CycleProvider>
-      <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <NutritionProvider>
+        <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      {/* Internal Protected Shell Routes */}
-      <Route element={<MainLayout />}>
-        {/* Employee Portal Routes */}
-        <Route path="/employee">
-          <Route index element={<Navigate to="/employee/dashboard" replace />} />
-          <Route path="dashboard" element={<EmployeeDashboard />} />
-          <Route path="cycle" element={<CycleOverview />} />
-          <Route path="cycle/assistant" element={<CycleAssistantPage />} />
-          <Route path="cycle/calendar" element={<CycleCalendar />} />
-          <Route path="cycle/check-in" element={<WellnessCheckIn />} />
-          <Route path="cycle/history" element={<CycleHistory />} />
-          <Route path="cycle/insights" element={<CycleInsights />} />
-          <Route path="cycle/settings" element={<CycleSettings />} />
-          <Route
-            path="nutrition"
-            element={
-              <PlaceholderPage
-                title="Nutritional Wellness & Meal Ideas"
-                description="Optional evidence-informed metabolic fuel, hydration targets, and self-guided nutrition planning."
-                role="Employee"
-                icon={Apple}
-                tags={['Micronutrient Guidance', 'Hydration Target', 'Anti-Inflammatory Ideas', 'Personal Meal Notes']}
-              />
-            }
-          />
-          <Route
-            path="fitness"
+        {/* Internal Protected Shell Routes */}
+        <Route element={<MainLayout />}>
+          {/* Employee Portal Routes */}
+          <Route path="/employee">
+            <Route index element={<Navigate to="/employee/dashboard" replace />} />
+            <Route path="dashboard" element={<EmployeeDashboard />} />
+            <Route path="cycle" element={<CycleOverview />} />
+            <Route path="cycle/assistant" element={<CycleAssistantPage />} />
+            <Route path="cycle/calendar" element={<CycleCalendar />} />
+            <Route path="cycle/check-in" element={<WellnessCheckIn />} />
+            <Route path="cycle/history" element={<CycleHistory />} />
+            <Route path="cycle/insights" element={<CycleInsights />} />
+            <Route path="cycle/settings" element={<CycleSettings />} />
+            <Route path="nutrition" element={<NutritionOverview />} />
+            <Route path="nutrition/profile" element={<NutritionProfile />} />
+            <Route path="nutrition/meal-planner" element={<MealPlannerPlaceholder />} />
+            <Route path="nutrition/food-scanner" element={<FoodScannerPlaceholder />} />
+            <Route path="nutrition/history" element={<NutritionHistoryPlaceholder />} />
+            <Route
+              path="fitness"
             element={
               <PlaceholderPage
                 title="Fitness & Movement Hub"
@@ -354,6 +356,7 @@ export default function AppRoutes() {
       {/* Fallback to Landing Page */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+      </NutritionProvider>
     </CycleProvider>
   )
 }
